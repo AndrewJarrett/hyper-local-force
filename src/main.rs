@@ -46,6 +46,11 @@ async fn main() {
         tower_service.clone().call(request)
     });
 
+    // Setup LSP listener
+    let lsp = Router::new().route("/", get(lsp));
+    let lsp_listener = TcpListener::bind("127.0.0.1:3030").await.unwrap();
+    axum::serve(lsp_listener, lsp).await.unwrap();
+
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
     tracing::debug!("listening on {}", addr);
 
@@ -108,4 +113,8 @@ async fn tunnel(upgraded: Upgraded, addr: String) -> std::io::Result<()> {
     );
 
     Ok(())
+}
+
+async fn lsp() -> &'static str {
+    "LSP Server!"
 }
